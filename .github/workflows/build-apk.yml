@@ -50,7 +50,7 @@ jobs:
           cp public/icon-96.png android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
           cp public/icon-144.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
           cp public/icon-192.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
-          cp public/notification-icon.svg android/app/src/main/res/drawable/ic_notification.svg
+          convert -background none -density 300 public/notification-icon.svg -resize 96x96 android/app/src/main/res/drawable/ic_notification.png
 
       - name: Configure AndroidManifest
         run: |
