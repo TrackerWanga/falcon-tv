@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
@@ -101,6 +102,9 @@ export default function Home() {
               <span className="text-lg">📺</span>
             </div>
             <h1 className="text-xl font-bold bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">Falcon TV</h1>
+            <Link to="/sports" className="px-4 py-2 rounded-lg bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors flex items-center gap-1.5">
+              ⚽ Live Sports
+            </Link>
           </div>
           <span className="text-xs text-zinc-500 hidden sm:block">
             {liveCount} of {channels.length} live
