@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getCountryFlag, getCountryName, type Channel } from '../lib/api';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Loader2 } from 'lucide-react';
 
 let cachedStreams: Record<string, any> | null = null;
 
@@ -11,9 +11,7 @@ async function findChannel(id: string): Promise<Channel | null> {
       const res = await fetch('https://raw.githubusercontent.com/TrackerWanga/tv-stream-api/main/data/api_streams.json');
       const data = await res.json();
       cachedStreams = data.streams || {};
-    } catch {
-      return null;
-    }
+    } catch { return null; }
   }
 
   const decodedId = decodeURIComponent(id);
@@ -32,6 +30,7 @@ export default function Watch() {
   const [channel, setChannel] = useState<Channel | null>(null);
   const [loading, setLoading] = useState(true);
   const [playerError, setPlayerError] = useState(false);
+  const [buffering, setBuffering] = useState(true);
 
   useEffect(() => {
     async function load() {
@@ -43,7 +42,6 @@ export default function Watch() {
     load();
   }, [id]);
 
-  const isYouTube = channel?.source === 'youtube' || channel?.url?.includes('youtube.com');
   const streamUrl = channel?.url || '';
 
   if (loading) {
@@ -107,41 +105,35 @@ export default function Watch() {
           </div>
         </div>
 
-        {/* Video Player or YouTube fallback */}
-        <div className="rounded-2xl overflow-hidden bg-black border border-zinc-800 mb-6">
+        {/* Video Player */}
+        <div className="rounded-2xl overflow-hidden bg-black border border-zinc-800 mb-6 relative">
+          {buffering && !playerError && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-10">
+              <Loader2 className="w-10 h-10 text-red-500 animate-spin" />
+            </div>
+          )}
+          
           {playerError ? (
             <div className="aspect-video flex flex-col items-center justify-center p-8">
               <span className="text-5xl mb-4">⚠️</span>
               <p className="text-white font-medium mb-2">Playback Error</p>
-              <p className="text-zinc-500 text-sm text-center mb-4">This stream may be geo-blocked or unavailable.</p>
-              {streamUrl && (
-                <a href={streamUrl} target="_blank" rel="noopener noreferrer"
-                  className="px-5 py-2.5 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600 transition-colors flex items-center gap-2">
-                  <ExternalLink className="w-4 h-4" /> Open in External Player
-                </a>
-              )}
-            </div>
-          ) : isYouTube ? (
-            <div className="aspect-video flex flex-col items-center justify-center p-8">
-              <span className="text-5xl mb-4">🎬</span>
-              <p className="text-white font-medium mb-2">YouTube Live Stream</p>
-              <p className="text-zinc-500 text-sm text-center mb-4">YouTube streams can&apos;t play inside the app.</p>
+              <p className="text-zinc-500 text-sm text-center mb-4">Stream blocked or unavailable. Try external player.</p>
               <a href={streamUrl} target="_blank" rel="noopener noreferrer"
                 className="px-5 py-2.5 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600 transition-colors flex items-center gap-2">
-                <ExternalLink className="w-4 h-4" /> Watch on YouTube
+                <ExternalLink className="w-4 h-4" /> Open in External Player
               </a>
             </div>
           ) : (
             <video 
               controls 
               autoPlay 
+              playsInline
               className="w-full aspect-video" 
               style={{ background: '#000' }}
-              onError={() => setPlayerError(true)}
+              onCanPlay={() => setBuffering(false)}
+              onError={() => { setBuffering(false); setPlayerError(true); }}
             >
-              <source src={streamUrl} type="application/x-mpegURL" />
-              <source src={streamUrl} type="video/mp4" />
-              <source src={streamUrl} type="application/dash+xml" />
+              <source src={streamUrl} />
             </video>
           )}
         </div>
