@@ -1,0 +1,23 @@
+<svg viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00eaff"/><stop offset="50%" stop-color="#4f7cff"/><stop offset="100%" stop-color="#8a2cff"/>
+    </linearGradient>
+    <linearGradient id="yellow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff200"/><stop offset="100%" stop-color="#ff9800"/>
+    </linearGradient>
+  </defs>
+  <path d="M15 55 C15 25,45 10,85 30 C100 38,105 55,95 70 C80 85,50 90,25 75 C18 68,15 62,15 55Z" fill="none" stroke="url(#blue)" stroke-width="3" filter="url(#glow)"/>
+  <path d="M88 35 C100 30,115 42,105 55 C95 65,85 58,88 48Z" fill="none" stroke="url(#yellow)" stroke-width="2.5" filter="url(#glow)"/>
+  <circle cx="72" cy="38" r="8" fill="none" stroke="url(#yellow)" stroke-width="2.5" filter="url(#glow)"/>
+  <circle cx="73" cy="38" r="3.5" fill="#000" stroke="#ffe600" stroke-width="1.5" filter="url(#glow)"/>
+  <path d="M60 30 C68 28,78 30,85 34" stroke="#00eaff" stroke-width="2" fill="none" filter="url(#glow)"/>
+  <path d="M25 65 C35 62,50 68,60 75" stroke="#4f7cff" stroke-width="2" fill="none" filter="url(#glow)"/>
+  <path d="M22 72 C32 68,48 74,58 80" stroke="#8a2cff" stroke-width="1.5" fill="none" filter="url(#glow)"/>
+  <path d="M40 18 C50 10,65 8,78 22" stroke="url(#blue)" stroke-width="2.5" fill="none" filter="url(#glow)"/>
+  <path d="M50 14 C58 8,70 12,82 24" stroke="#00eaff" stroke-width="1.5" fill="none" filter="url(#glow)"/>
+</svg>

@@ -1,0 +1,36 @@
+{
+  "name": "falcon-tv",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FALCON TV - IPTV Streaming App | Built by Wanga",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.3.1",
+    "@capacitor/browser": "^8.0.3",
+    "@capacitor/cli": "^7.6.2",
+    "@capacitor/core": "^8.3.1",
+    "@capacitor/filesystem": "^8.1.2",
+    "@capacitor/network": "^8.0.1",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2",
+    "framer-motion": "11.3.0",
+    "hls.js": "1.5.0",
+    "lucide-react": "0.400.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "6.26.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "4.3.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.19",
+    "vite": "5.4.0"
+  }
+}

@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/ChannelCard.tsx","./src/components/ChannelGrid.tsx","./src/components/SearchBar.tsx","./src/lib/api.ts","./src/lib/constants.ts","./src/lib/hooks.ts","./src/pages/Browse.tsx","./src/pages/Home.tsx","./src/pages/Watch.tsx"],"version":"6.0.3"}
