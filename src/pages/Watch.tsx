@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getCountryFlag, getCountryName, type Channel } from '../lib/api';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ExternalLink } from 'lucide-react';
 
 let cachedStreams: Record<string, any> | null = null;
 
 async function findChannel(id: string): Promise<Channel | null> {
-  // Fetch once and cache
   if (!cachedStreams) {
     try {
       const res = await fetch('https://raw.githubusercontent.com/TrackerWanga/tv-stream-api/main/data/api_streams.json');
@@ -18,30 +17,13 @@ async function findChannel(id: string): Promise<Channel | null> {
   }
 
   const decodedId = decodeURIComponent(id);
-  
-  // Exact match
   if (cachedStreams[decodedId]) return cachedStreams[decodedId];
   
-  // Case-insensitive match
   const lowerId = decodedId.toLowerCase();
   for (const [key, value] of Object.entries(cachedStreams)) {
     if (key.toLowerCase() === lowerId) return value as Channel;
+    if (key.startsWith(decodedId + '@') || key.startsWith(decodedId + '-')) return value as Channel;
   }
-  
-  // Prefix match (e.g. "MorningCloudTV.ke" matches "MorningCloudTV.ke@SD")
-  for (const [key, value] of Object.entries(cachedStreams)) {
-    if (key.startsWith(decodedId + '@') || key.startsWith(decodedId + '-')) {
-      return value as Channel;
-    }
-  }
-  
-  // Contains match
-  for (const [key, value] of Object.entries(cachedStreams)) {
-    if (key.toLowerCase().includes(lowerId) || lowerId.includes(key.toLowerCase())) {
-      return value as Channel;
-    }
-  }
-  
   return null;
 }
 
@@ -49,6 +31,7 @@ export default function Watch() {
   const { id } = useParams<{ id: string }>();
   const [channel, setChannel] = useState<Channel | null>(null);
   const [loading, setLoading] = useState(true);
+  const [playerError, setPlayerError] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -59,6 +42,9 @@ export default function Watch() {
     }
     load();
   }, [id]);
+
+  const isYouTube = channel?.source === 'youtube' || channel?.url?.includes('youtube.com');
+  const streamUrl = channel?.url || '';
 
   if (loading) {
     return (
@@ -121,11 +107,43 @@ export default function Watch() {
           </div>
         </div>
 
+        {/* Video Player or YouTube fallback */}
         <div className="rounded-2xl overflow-hidden bg-black border border-zinc-800 mb-6">
-          <video controls autoPlay className="w-full aspect-video" style={{ background: '#000' }}>
-            <source src={channel.url} type="application/x-mpegURL" />
-            <source src={channel.url} type="video/mp4" />
-          </video>
+          {playerError ? (
+            <div className="aspect-video flex flex-col items-center justify-center p-8">
+              <span className="text-5xl mb-4">⚠️</span>
+              <p className="text-white font-medium mb-2">Playback Error</p>
+              <p className="text-zinc-500 text-sm text-center mb-4">This stream may be geo-blocked or unavailable.</p>
+              {streamUrl && (
+                <a href={streamUrl} target="_blank" rel="noopener noreferrer"
+                  className="px-5 py-2.5 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600 transition-colors flex items-center gap-2">
+                  <ExternalLink className="w-4 h-4" /> Open in External Player
+                </a>
+              )}
+            </div>
+          ) : isYouTube ? (
+            <div className="aspect-video flex flex-col items-center justify-center p-8">
+              <span className="text-5xl mb-4">🎬</span>
+              <p className="text-white font-medium mb-2">YouTube Live Stream</p>
+              <p className="text-zinc-500 text-sm text-center mb-4">YouTube streams can&apos;t play inside the app.</p>
+              <a href={streamUrl} target="_blank" rel="noopener noreferrer"
+                className="px-5 py-2.5 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600 transition-colors flex items-center gap-2">
+                <ExternalLink className="w-4 h-4" /> Watch on YouTube
+              </a>
+            </div>
+          ) : (
+            <video 
+              controls 
+              autoPlay 
+              className="w-full aspect-video" 
+              style={{ background: '#000' }}
+              onError={() => setPlayerError(true)}
+            >
+              <source src={streamUrl} type="application/x-mpegURL" />
+              <source src={streamUrl} type="video/mp4" />
+              <source src={streamUrl} type="application/dash+xml" />
+            </video>
+          )}
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
