@@ -2,9 +2,7 @@ name: Build Falcon TV APK
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [main, master]
   workflow_dispatch:
 
 permissions:
@@ -14,39 +12,54 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
+      - uses: actions/setup-node@v4
+        with: {node-version: '20', cache: 'npm'}
 
-      - name: Setup Java 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
+      - uses: actions/setup-java@v4
+        with: {distribution: 'temurin', java-version: '21'}
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: 'platforms;android-35 build-tools;35.0.0 platform-tools'
+      - uses: android-actions/setup-android@v3
+        with: {packages: 'platforms;android-35 build-tools;35.0.0 platform-tools'}
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build web app
-        run: npm run build
+      - run: npm install
+      - run: npm run build
 
       - name: Add Android platform
-        run: npx cap add android
+        run: |
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap add android
+
+      - name: Generate app icons
+        run: |
+          # Convert SVG to PNG for Android icons using ImageMagick
+          sudo apt-get install -y imagemagick
+          for size in 48 72 96 144 192 512; do
+            convert -background none -density 300 public/logo.svg -resize ${size}x${size} public/icon-${size}.png
+          done
+          # Copy to Android mipmap directories
+          mkdir -p android/app/src/main/res/mipmap-hdpi
+          mkdir -p android/app/src/main/res/mipmap-mdpi
+          mkdir -p android/app/src/main/res/mipmap-xhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxxhdpi
+          mkdir -p android/app/src/main/res/drawable
+          cp public/icon-72.png android/app/src/main/res/mipmap-hdpi/ic_launcher.png
+          cp public/icon-48.png android/app/src/main/res/mipmap-mdpi/ic_launcher.png
+          cp public/icon-96.png android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          cp public/icon-144.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          cp public/icon-192.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          cp public/notification-icon.svg android/app/src/main/res/drawable/ic_notification.svg
+
+      - name: Configure AndroidManifest
+        run: |
+          # Add TV banner, PiP, notification permission
+          sed -i 's|</application>|  <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_notification" />\n    <meta-data android:name="com.google.firebase.messaging.default_notification_color" android:resource="@color/colorPrimary" />\n  </application>|' android/app/src/main/AndroidManifest.xml
+          sed -i 's|</manifest>|  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n</manifest>|' android/app/src/main/AndroidManifest.xml
 
       - name: Build APK
-        run: |
-          cd android
-          ./gradlew assembleDebug
+        run: cd android && ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
