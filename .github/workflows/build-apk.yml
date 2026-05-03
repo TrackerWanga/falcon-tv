@@ -40,11 +40,10 @@ jobs:
       - name: Build web app
         run: npm run build
 
-      - name: Initialize Capacitor
+      - name: Sync Capacitor (android already exists)
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init "Falcon TV" com.falcon.tv --web-dir=dist
-          npx cap add android
+          npx cap sync android
 
       - name: Configure Gradle
         run: |
