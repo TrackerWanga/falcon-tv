@@ -32,7 +32,7 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: 'platforms;android-36 build-tools;36.0.0 platform-tools'
+          packages: 'platforms;android-35 build-tools;35.0.0 platform-tools'
 
       - name: Install dependencies
         run: npm install
@@ -40,13 +40,8 @@ jobs:
       - name: Build web app
         run: npm run build
 
-      - name: Initialize Capacitor Android
+      - name: Add Android platform (fresh)
         run: npx cap add android
-
-      - name: Fix compileSdk
-        run: |
-          sed -i 's/compileSdkVersion = 35/compileSdkVersion = 36/' android/variables.gradle
-          sed -i 's/targetSdkVersion = 35/targetSdkVersion = 36/' android/variables.gradle
 
       - name: Build APK
         run: |
